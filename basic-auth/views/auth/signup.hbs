@@ -4,7 +4,11 @@
     <input type="text" name="username" />
 
     <label for="password">Password</label><br />
-    <input type="password" name="password" />
+    <input minlength="4" type="password" name="password" />
+
+    {{#if errorMessage}}
+    <div class="error-message">{{errorMessage}}</div>
+    {{/if}}
 
     <button type="submit">Create account</button>
 </form>
