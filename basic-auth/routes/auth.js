@@ -9,6 +9,40 @@ router.get("/signup", (req, res) => {
   res.render("auth/signup");
 });
 
+router.get("/login", (req, res) => {
+  res.render("auth/login");
+});
+
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  // const username = req.body.username;
+  // const password = req.body.password;
+
+  if (!username || !password) {
+    res.render("auth/login", { errorMessage: "Both fields are required" });
+
+    return;
+  }
+
+  User.findOne({ username })
+    .then(user => {
+      if (!user) {
+        return res.render("auth/login", {
+          errorMessage: "Invalid credentials"
+        });
+      }
+      if (bcrypt.compareSync(password, user.password)) {
+        req.session.user = user;
+        res.redirect("/");
+      } else {
+        res.render("auth/login", { errorMessage: "Invalid credentials" });
+      }
+    })
+    .catch(err => {
+      res.render("views/signup", { errorMessage: err._message });
+    });
+});
+
 router.post("/signup", (req, res) => {
   const { username, password } = req.body;
 
@@ -46,6 +80,13 @@ router.post("/signup", (req, res) => {
     .catch(err => {
       res.render("views/signup", { errorMessage: err._message });
     });
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) console.log(err);
+    res.redirect("/");
+  });
 });
 
 module.exports = router;
